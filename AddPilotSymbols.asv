@@ -1,0 +1,7 @@
+%AddPilotSymbols
+%Input: array of 0-7 of length 9L, where L is an integer
+%Output: array of 0-7 of length 10L, where L is an integer
+
+function syms_out = AddPilotSymbols(syms_in)
+
+end

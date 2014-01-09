@@ -41,5 +41,5 @@ function [stream_out,initial] = CorrectPhase(stream_in, factor, pilotSymbol)
     
     %Calculate offset and reverse it
     offset = meanPilot/pilotSymbol;
-    stream_out = stream_in/offset;    
+    stream_out = -(stream_in/offset);    
 end

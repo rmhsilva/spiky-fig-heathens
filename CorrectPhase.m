@@ -14,8 +14,10 @@
 
 %NOTE: matrix notation is rows x columns
 
-function [stream_out,initial] = CorrectPhase(stream_in, factor, pilotSymbol)
+function [stream_out,initial] = CorrectPhase(stream_in_full, factor, pilotSymbol)
     
+    % stream_in = zeros(1,factor*5);
+    stream_in = stream_in_full(1,1:factor*5);
     mat = reshape(stream_in,factor,length(stream_in)/factor)';
     
     %For each column, calculate the average mag. change between rows
@@ -41,5 +43,5 @@ function [stream_out,initial] = CorrectPhase(stream_in, factor, pilotSymbol)
     
     %Calculate offset and reverse it
     offset = meanPilot/pilotSymbol;
-    stream_out = -(stream_in/offset);    
+    stream_out = -(stream_in_full/offset);    
 end

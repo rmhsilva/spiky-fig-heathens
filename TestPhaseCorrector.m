@@ -2,8 +2,8 @@
 clear all;
 
 %Generate complex numbers (QPSK)
-reals = round(rand(1,10000));
-imags = round(rand(1,10000));
+reals = round(rand(1,99000));
+imags = round(rand(1,99000));
 for n = 1:length(reals)
     if(reals(1,n) == 0)
         reals(1,n) = -1;
@@ -22,13 +22,13 @@ streamB = AddPilotSymbols(streamA,pilotSym,symFreq,1);
 
 %Apply some phase offset
 offset = 0.707 + 0.707i;
-streamC = streamA * offset;
-%figure(1); plot(streamA);
-%figure(2); plot(streamB);
+streamC = streamB * offset;
+%figure(1); plot(streamB);
+%figure(2); plot(streamC);
 
 %Correction!
 streamD = CorrectPhase(streamC,symFreq,pilotSym);
-%figure(3); plot(streamC);
+%figure(3); plot(streamD);
 
 %Remove pilots
 streamE = RemovePilotSymbols(streamD,symFreq,1);

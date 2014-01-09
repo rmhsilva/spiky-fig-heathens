@@ -69,7 +69,7 @@ s_hat = filter(c,1,s);
 % additive white Gaussian noise (AWGN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist('SNR_set', 'var') % Means we can set SNR from another script
-    SNR = 30;
+    SNR = 1000;
 end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
@@ -94,8 +94,7 @@ xlabel('wrapped time'); ylabel('I-component amplitude');
 % sampling at symbol rate
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Ninit = 1;                     % determine sampling point (0<Ninit<=N)
-% Ninit = EstimateNinit(s2, N);
-Ninit = 1;
+Ninit = EstimateNinit(s2, N);
 disp(sprintf('using Ninit: %d', Ninit));
 X_hat = s2(Ninit:N:end);        % "sample" the signal 
 

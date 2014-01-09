@@ -9,6 +9,7 @@ function syms_out = RemovePilotSymbols(syms_in, pilotFrequency, firstPilotIndex)
         a = a + 1;
     end
     
+    %Temp, used to check the above method works
     b = 0;
     for n = firstPilotIndex:pilotFrequency:length(syms_in)
        b = b + 1;

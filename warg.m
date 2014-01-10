@@ -8,4 +8,4 @@ if nargin < 2
   offset = 0;
 end
 
-a = mod(arg(phi)+offset,2*pi);
+a = mod(angle(phi)+offset,2*pi);

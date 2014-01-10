@@ -16,10 +16,8 @@ split_angle = pi/(2^Nbits);
 
 % Re-position the constellation points
 for n = 1:(2^Nbits)-1
-  y(warg(Y) > warg(points(n), -split_angle) &
-    warg(Y) < warg(points(n+1), -split_angle)) = n-1;
+  y(warg(Y) > warg(points(n), -split_angle) & warg(Y) < warg(points(n+1), -split_angle)) = n-1;
 end
 
 % Do the last one specially
-y(warg(Y) > warg(points(2^Nbits), -split_angle) |
-  warg(Y) < warg(points(1), -split_angle)) = (2^Nbits) - 1;
+y(warg(Y) > warg(points(2^Nbits), -split_angle) | warg(Y) < warg(points(1), -split_angle)) = (2^Nbits) - 1;

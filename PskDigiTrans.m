@@ -19,7 +19,7 @@ points = exp(sqrt(-1)*(2*pi*rts + phase_offset));
 % bit stream generation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LB = 10000;			% number of bits
-LB -= mod(LB,Nbits);  % Make number of bits aligned with symbol size
+LB = LB - mod(LB,Nbits);  % Make number of bits aligned with symbol size
 B = BitStream(LB);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -123,7 +123,7 @@ X_tilde = PSK_Slicer(X_phase_corrected,Nbits);
 X2 = PSK_Demod(X_tilde,Nbits);
 
 X2_no_pilot = RemovePilotSymbols(X2,pilot_freq,first_pilot);
-B2 = SymbolsToBits(X2_no_pilot,Nbits);
+B2 = SymbolsToBits(X2_no_pilot);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % calculate bit error

@@ -18,7 +18,10 @@ function [stream_out,initial] = CorrectPhase(stream_in_full, factor, pilotSymbol
     
     % stream_in = zeros(1,factor*5);
     stream_in = stream_in_full(1,1:factor*5);
-    mat = reshape(stream_in,factor,length(stream_in)/factor)';
+    mat = reshape(stream_in,factor,length(stream_in)/factor).';
+    
+    disp(mat(1,1:10));
+    disp(stream_in(1,1:10));
     
     %For each column, calculate the average mag. change between rows
     [row,col] = size(mat);
@@ -40,8 +43,8 @@ function [stream_out,initial] = CorrectPhase(stream_in_full, factor, pilotSymbol
         tot = tot + mat(n,initial);
     end
     meanPilot = tot / row;
-    
+
     %Calculate offset and reverse it
     offset = meanPilot/pilotSymbol;
-    stream_out = -(stream_in_full/offset);    
+    stream_out = stream_in_full/offset;
 end

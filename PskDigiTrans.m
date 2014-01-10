@@ -128,8 +128,8 @@ B2 = SymbolsToBits(X2_no_pilot);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % calculate bit error
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-delayB = 41;			% to compensate delays in channel & TX/RX
-diff = B(1:end-delayB-23) - B2(delayB+1:end);
+delayB = 0;			% to compensate delays in channel & TX/RX
+diff = B(1:end-delayB-24) - B2(delayB+1:end);
 BER = sum(abs(diff))/(length(B)-delayB);
 disp(sprintf('bit error probability = %f',BER));
 

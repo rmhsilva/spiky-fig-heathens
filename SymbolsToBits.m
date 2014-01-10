@@ -11,10 +11,10 @@ function bits_out = SymbolsToBits(syms_in)
     bits_out = zeros(1,length(syms_in)*3);
     for n = 1:length(syms_in)
         for m = 1:8
-            if(syms_in(1,n) == LUT(n,1))
-                bits_out(1,(3*n)-2) = LUT(n,2);
-                bits_out(1,(3*n)-1) = LUT(n,3);
-                bits_out(1,3*n) = LUT(n,4);
+            if(syms_in(1,n) == LUT(m,1))
+                bits_out(1,(3*n)-2) = LUT(m,2);
+                bits_out(1,(3*n)-1) = LUT(m,3);
+                bits_out(1,3*n) = LUT(m,4);
             end
         end
     end

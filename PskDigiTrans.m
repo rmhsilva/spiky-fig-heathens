@@ -102,6 +102,9 @@ xlabel('wrapped time'); ylabel('I-component amplitude');
 % sampling at symbol rate
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Ninit = 1;                     % determine sampling point (0<Ninit<=N)
+% EstimateNinitBetter does two things:
+%   Finds the start of 'real' data (ie skips initial junk)
+%   Calculates the best sampling point based on average signal power
 [start_point, Ninit] = EstimateNinitBetter(s2, N);
 disp(sprintf('using Ninit: %d and start: %d', Ninit, start_point));
 
@@ -116,12 +119,12 @@ title('constellation'); xlabel('I'); ylabel('Q');
 % conversion from 16-QAM to bits stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
-% first_pilot = 1;
-% X_phase_corrected = X_hat;
 
+% Reposition the constellation points and demodulation
 X_tilde = PSK_Slicer(X_phase_corrected,Nbits);
 X2 = PSK_Demod(X_tilde,Nbits);
 
+% Remove pilots and convert to bits
 X2_no_pilot = RemovePilotSymbols(X2,pilot_freq,first_pilot);
 B2 = SymbolsToBits(X2_no_pilot);
 

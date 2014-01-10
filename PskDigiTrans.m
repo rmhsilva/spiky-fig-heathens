@@ -101,13 +101,11 @@ xlabel('wrapped time'); ylabel('I-component amplitude');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % sampling at symbol rate
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Ninit = 6;                     % determine sampling point (0<Ninit<=N)
-%Ninit = EstimateNinit(s2, N);
-disp(sprintf('using Ninit: %d', Ninit));
+%Ninit = 1;                     % determine sampling point (0<Ninit<=N)
+[start_point, Ninit] = EstimateNinit(s2, N);
+disp(sprintf('using Ninit: %d and start: %d', Ninit, start_point));
 
-% TODO: Trim out initial noise.
-
-X_hat = Downsample(s2, N, N*10 + Ninit);
+X_hat = Downsample(s2, N, start_point+Ninit);
 
 % plot received constellation
 figure(2); clf;
@@ -118,19 +116,19 @@ title('constellation'); xlabel('I'); ylabel('Q');
 % conversion from 16-QAM to bits stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
+% first_pilot = 1;
+% X_phase_corrected = X_hat;
 
-% X_tilde = QAM_Slicer(X_hat,Nbits,'renorm');
-% X2 = QAM_Demod(X_tilde,Nbits);
 X_tilde = PSK_Slicer(X_phase_corrected,Nbits);
 X2 = PSK_Demod(X_tilde,Nbits);
-B2_pilot = SymbolsToBits(X2,Nbits);
 
-B2 = RemovePilotSymbols(B2_pilot,pilot_freq,first_pilot);
+X2_no_pilot = RemovePilotSymbols(X2,pilot_freq,first_pilot);
+B2 = SymbolsToBits(X2_no_pilot,Nbits);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % calculate bit error
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-delayB = 30;			% to compensate delays in channel & TX/RX
+delayB = 41;			% to compensate delays in channel & TX/RX
 diff = B(1:end-delayB-23) - B2(delayB+1:end);
 BER = sum(abs(diff))/(length(B)-delayB);
 disp(sprintf('bit error probability = %f',BER));

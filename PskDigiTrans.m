@@ -102,7 +102,7 @@ xlabel('wrapped time'); ylabel('I-component amplitude');
 % sampling at symbol rate
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Ninit = 1;                     % determine sampling point (0<Ninit<=N)
-[start_point, Ninit] = EstimateNinit(s2, N);
+[start_point, Ninit] = EstimateNinitBetter(s2, N);
 disp(sprintf('using Ninit: %d and start: %d', Ninit, start_point));
 
 X_hat = Downsample(s2, N, start_point+Ninit);

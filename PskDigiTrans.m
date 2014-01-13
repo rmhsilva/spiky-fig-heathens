@@ -18,42 +18,23 @@ points = exp(sqrt(-1)*(2*pi*rts + phase_offset));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % bit stream generation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LB = 10000;			% number of bits
+LB = 30000;               % number of bits
 LB = LB - mod(LB,Nbits);  % Make number of bits aligned with symbol size
 B = BitStream(LB);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion to symbol 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-x = BitsToSymbols(B);    	% group Nbits successive bits
-                                    % into each I and Q
+x = BitsToSymbols(B);     % group Nbits successive bits
+                          % into each I and Q
 x_pilot = AddPilotSymbols(x, 0, pilot_freq, 1); % Add Pilot symbols
-X = PSK_Mod(x_pilot,Nbits);             % Do PSK modulation
-% X = QAM_Mod(x,Nbits);               % to implement 2^(2*Nbits)-QAM
-
-% Random noise for TESTING
-% X += rand(1,length(X)) / 10 + sqrt(-1) * rand(1,length(X)) / 10;
-
-% X_tilde = PSK_Slicer(X,Nbits);
-% x2 = PSK_Demod(X_tilde,Nbits);
-
-% figure(1);
-% scatter(real(X),imag(X));
-% figure(2);
-% scatter(real(X_tilde),imag(X_tilde));
-
-% diff = x(1:end) - x2(1:end);
-% BER = sum(abs(diff))/(length(x));
-% disp('ber: '); disp(BER);
-
-% error('done');
+% X = PSK_Mod(x_pilot,Nbits);           % Do PSK modulation
+X = pskmod(x_pilot, 2^Nbits, 0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % upsamling and transmit filtering
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-N = 16; 	% oversampling factor for transmitted data
-% Xup = zeros(1,length(X)*N);
-% Xup(1:N:end) = X;
+N = 16; 	% oversampling factor for transmitted data;
 Xup = Upsample(X, N);
 
 %h = sqrt(N)*firrcos(10*N,1/N,.5,2,'rolloff','sqrt');
@@ -64,7 +45,7 @@ s = filter(h,1,Xup);
 % add a carrier offset to the time domain signal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-offset = (1/N) * -1/70;  % 1/70th of the symbol frequency (N)
+offset = (1/N) * -1/1000;  % of the symbol frequency (N)
 %s = CarrierOffset(s, offset);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,12 +58,13 @@ s_hat = filter(c,1,s);
 % additive white Gaussian noise (AWGN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist('SNR_set', 'var') % Means we can set SNR from another script
-    SNR = 1000;
+    SNR = 10;
 end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
 noise = (randn(1,Ls) + sqrt(-1)*randn(1,Ls))*sqrt(N)/sqrt(2);
-s_hat = s_hat + sigma_x*10^(-SNR/20)*noise;
+% s_hat = s_hat + sigma_x*10^(-SNR/20)*noise;
+s_hat = awgn(s_hat,SNR);
 % line above WAS: (incorrectly) s_hat = s_hat + sigma_x*10^(-SNR/20)*sqrt(N)*noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % receive filtering
@@ -105,24 +87,28 @@ xlabel('wrapped time'); ylabel('I-component amplitude');
 % EstimateNinitBetter does two things:
 %   Finds the start of 'real' data (ie skips initial junk)
 %   Calculates the best sampling point based on average signal power
-[start_point, Ninit] = EstimateNinitBetter(s2, N);
+%[start_point, Ninit] = EstimateNinitBetter(s2, N);
+Ninit = 1;
+start_point = 160;
 disp(sprintf('using Ninit: %d and start: %d', Ninit, start_point));
 
 X_hat = Downsample(s2, N, start_point+Ninit);
 
 % plot received constellation
 figure(2); clf;
-plot(X_hat(20:170),'.');
+plot(X_hat(20:500),'.');
 title('constellation'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion from 16-QAM to bits stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
+% [X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
+X_phase_corrected = X_hat;
+first_pilot = 1;
 
 % Reposition the constellation points and demodulation
-X_tilde = PSK_Slicer(X_phase_corrected,Nbits);
-X2 = PSK_Demod(X_tilde,Nbits);
+% [X2,X_tilde] = PSK_DemodEuc(X_phase_corrected,Nbits);
+X2 = pskdemod(X_phase_corrected, 2^Nbits, 0);
 
 % Remove pilots and convert to bits
 X2_no_pilot = RemovePilotSymbols(X2,pilot_freq,first_pilot);
@@ -132,13 +118,6 @@ B2 = SymbolsToBits(X2_no_pilot);
 % calculate bit error
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 delayB = 0;			% to compensate delays in channel & TX/RX
-diff = B(1:end-delayB-24) - B2(delayB+1:end);
+diff = B(1:length(B2)) - B2(delayB+1:end);
 BER = sum(abs(diff))/(length(B)-delayB);
 disp(sprintf('bit error probability = %f',BER));
-
-
-
-
-
-
-

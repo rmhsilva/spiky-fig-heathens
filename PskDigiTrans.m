@@ -58,7 +58,7 @@ s_hat = filter(c,1,s);
 % additive white Gaussian noise (AWGN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist('SNR_set', 'var') % Means we can set SNR from another script
-    SNR = 10;
+    SNR = 12;
 end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
@@ -87,9 +87,9 @@ xlabel('wrapped time'); ylabel('I-component amplitude');
 % EstimateNinitBetter does two things:
 %   Finds the start of 'real' data (ie skips initial junk)
 %   Calculates the best sampling point based on average signal power
-%[start_point, Ninit] = EstimateNinitBetter(s2, N);
-Ninit = 1;
-start_point = 160;
+[start_point, Ninit] = EstimateNinitBetter(s2, N);
+%Ninit = 1;
+%start_point = 160;
 disp(sprintf('using Ninit: %d and start: %d', Ninit, start_point));
 
 X_hat = Downsample(s2, N, start_point+Ninit);

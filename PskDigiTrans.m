@@ -28,8 +28,8 @@ B = BitStream(LB);
 x = BitsToSymbols(B);     % group Nbits successive bits
                           % into each I and Q
 x_pilot = AddPilotSymbols(x, 0, pilot_freq, 1); % Add Pilot symbols
-% X = PSK_Mod(x_pilot,Nbits);           % Do PSK modulation
-X = pskmod(x_pilot, 2^Nbits, 0);
+X = PSK_Mod(x_pilot,Nbits);           % Do PSK modulation
+% X = pskmod(x_pilot, 2^Nbits, 0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % upsamling and transmit filtering
@@ -63,8 +63,8 @@ end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
 noise = (randn(1,Ls) + sqrt(-1)*randn(1,Ls))*sqrt(N)/sqrt(2);
-% s_hat = s_hat + sigma_x*10^(-SNR/20)*noise;
-s_hat = awgn(s_hat,SNR);
+s_hat = s_hat + sigma_x*10^(-SNR/20)*noise;
+% s_hat = awgn(s_hat,SNR);
 % line above WAS: (incorrectly) s_hat = s_hat + sigma_x*10^(-SNR/20)*sqrt(N)*noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % receive filtering
@@ -102,13 +102,13 @@ title('constellation'); xlabel('I'); ylabel('Q');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion from 16-QAM to bits stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% [X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
-X_phase_corrected = X_hat;
-first_pilot = 1;
+% X_phase_corrected = X_hat;
+% first_pilot = 1;
+[X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
 
 % Reposition the constellation points and demodulation
-% [X2,X_tilde] = PSK_DemodEuc(X_phase_corrected,Nbits);
-X2 = pskdemod(X_phase_corrected, 2^Nbits, 0);
+[X2,X_tilde] = PSK_DemodEuc(X_phase_corrected,Nbits);
+% X2 = pskdemod(X_phase_corrected, 2^Nbits, 0);
 
 % Remove pilots and convert to bits
 X2_no_pilot = RemovePilotSymbols(X2,pilot_freq,first_pilot);

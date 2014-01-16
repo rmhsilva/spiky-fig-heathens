@@ -47,7 +47,7 @@ s = filter(h,1,Xup);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 offset = (1/N) * -1/500;  % of the symbol frequency (N)
-s = CarrierOffset(s, offset);
+%s = CarrierOffset(s, offset);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % filtering with channel impulse response
@@ -59,12 +59,12 @@ s_hat = filter(c,1,s);
 % additive white Gaussian noise (AWGN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist('SNR_set', 'var') % Means we can set SNR from another script
-    SNR = 1000;
+    SNR = 1;
 end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
 noise = (randn(1,Ls) + sqrt(-1)*randn(1,Ls))*sqrt(N)/sqrt(2);
-s_hat = s_hat + sigma_x*10^(-SNR/20)*noise;
+s_hat = s_hat + sigma_x*10^(-SNR/10)*noise;
 % s_hat = awgn(s_hat,SNR);
 % line above WAS: (incorrectly) s_hat = s_hat + sigma_x*10^(-SNR/20)*sqrt(N)*noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

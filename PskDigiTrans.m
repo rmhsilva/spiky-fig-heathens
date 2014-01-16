@@ -19,7 +19,7 @@ points = exp(sqrt(-1)*(2*pi*rts + phase_offset));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % bit stream generation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LB = 30000;               % number of bits
+LB = 1000;               % number of bits
 LB = LB - mod(LB,Nbits);  % Make number of bits aligned with symbol size
 B = BitStream(LB);
 
@@ -68,15 +68,22 @@ s_hat = s_hat + sigma_x*10^(-SNR/10)*noise;
 % s_hat = awgn(s_hat,SNR);
 % line above WAS: (incorrectly) s_hat = s_hat + sigma_x*10^(-SNR/20)*sqrt(N)*noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% receive filtering
+% receive filtering, gain and quantisation modelling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-s2 = filter(h,1,s_hat);
+s_hat = s_hat .* 1000;                    % Receiver gain for -110dBm (10% of full swing)
+s_real = quantise(real(s_hat), 16);     % 16 bit quantisation for real data
+s_imag = quantise(imag(s_hat), 16);     % 16 bit quantisation for imag data
+s_quantised = s_real + s_imag.*i;  % Recombine the data
+% s2_quantised = s2;
+
+s2 = filter(h,1,s_quantised);
+%s2 = s_quantised;
 
 % eye diagram
 N_lines = 100;
 EYE = zeros(32,N_lines); 
 EYE(:) = s2(N*10+1:N*10+32*N_lines)';
-figure(1); clf;
+figure(5); clf;
 plot(imag(EYE));	% I-component only
 title('eye diagram of received data');
 xlabel('wrapped time'); ylabel('I-component amplitude');
@@ -97,7 +104,7 @@ X_hat = Downsample(s2, N, start_point+Ninit);
 
 % plot received constellation
 figure(2); clf;
-plot(X_hat(20:500),'.');
+plot(X_hat(20:100),'.');
 title('constellation'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

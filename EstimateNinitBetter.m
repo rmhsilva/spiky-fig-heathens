@@ -7,17 +7,17 @@ Ls = length(s);
 avg_pwr = zeros(1,factor);
 
 % TODO: eliminate noise at start of signal. Check power level.
-start_point = 1;
-for n = 1:Ls
-    if norm(s(n)) > 0.5
-      start_point = n;
-      break;
-    end
-end
+start_point = 160;
+% for n = 1:Ls
+%     if mean(norm(s(n+20))) > 0.05
+%       start_point = n;
+%       break;
+%     end
+% end
 
 % Sample the signal and calculate the average power for each Ninit:
 for Ninit = 1:factor
-    sdn = s(start_point+Ninit:factor:factor*40);
+    sdn = s(start_point+Ninit:factor:900);
     avg_pwr(Ninit) = sum(norm(sdn).^2) / Ls;
 end
 

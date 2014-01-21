@@ -53,7 +53,7 @@ end
 %Divide by bits per symbol for gray coded error rate
 linearSNRs = zeros(1,snrmax);
 for n = 1:snrmax
-    linearSNRs(1,n) = 10^(n/20);
+    linearSNRs(1,n) = 10^(n/10);
 end
 
 theoretical = zeros(1,snrmax);

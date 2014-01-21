@@ -21,10 +21,10 @@ for Ninit = 1:factor
     avg_pwr(Ninit) = sum(norm(sdn).^2) / Ls;
 end
 
-figure(3); clf;
-bar(avg_pwr);
-xlabel('Value of Ninit'); ylabel('Average signal power');
-title('Signal power as initial sampling point changes');
+% figure(3); clf;
+% bar(avg_pwr);
+% xlabel('Value of Ninit'); ylabel('Average signal power');
+% title('Signal power as initial sampling point changes');
 
 [~, N] = max(avg_pwr);
 

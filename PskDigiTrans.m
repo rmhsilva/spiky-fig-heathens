@@ -45,9 +45,11 @@ s = filter(h,1,Xup);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add a carrier offset to the time domain signal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%100Hz worst case
+%Symbol freq = 6666 symbols/sec
 
-offset = (1/N) * -1/500;  % of the symbol frequency (N)
-%s = CarrierOffset(s, offset);
+offset = (1/N) * (100/6666);  % of the symbol frequency (N)
+s = CarrierOffset(s, offset);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % filtering with channel impulse response
@@ -59,7 +61,7 @@ s_hat = filter(c,1,s);
 % additive white Gaussian noise (AWGN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist('SNR_set', 'var') % Means we can set SNR from another script
-    SNR = 1;
+    SNR = 20;
 end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
@@ -70,23 +72,23 @@ s_hat = s_hat + sigma_x*10^(-SNR/10)*noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % receive filtering, gain and quantisation modelling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-s_hat = s_hat .* 1000;                    % Receiver gain for -110dBm (10% of full swing)
+s_hat = s_hat .* 0.1;                    % Receiver gain for -110dBm (10% of full swing)
 s_real = quantise(real(s_hat), 16);     % 16 bit quantisation for real data
 s_imag = quantise(imag(s_hat), 16);     % 16 bit quantisation for imag data
-s_quantised = s_real + s_imag.*i;  % Recombine the data
-% s2_quantised = s2;
+s_quantised = s_real + s_imag.*1i;  % Recombine the data
+s2_quantised = s_hat;
 
 s2 = filter(h,1,s_quantised);
 %s2 = s_quantised;
 
 % eye diagram
-N_lines = 100;
-EYE = zeros(32,N_lines); 
-EYE(:) = s2(N*10+1:N*10+32*N_lines)';
-figure(5); clf;
-plot(imag(EYE));	% I-component only
-title('eye diagram of received data');
-xlabel('wrapped time'); ylabel('I-component amplitude');
+% N_lines = 100;
+% EYE = zeros(32,N_lines); 
+% EYE(:) = s2(N*10+1:N*10+32*N_lines)';
+% figure(5); clf;
+% plot(imag(EYE));	% I-component only
+% title('eye diagram of received data');
+% xlabel('wrapped time'); ylabel('I-component amplitude');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % sampling at symbol rate
@@ -103,17 +105,26 @@ disp(sprintf('using Ninit: %d and start: %d', Ninit, start_point));
 X_hat = Downsample(s2, N, start_point+Ninit);
 
 % plot received constellation
-figure(2); clf;
-plot(X_hat(20:100),'.');
-title('constellation'); xlabel('I'); ylabel('Q');
+% figure(2); clf;
+% plot(X_hat(20:100),'.');
+% title('constellation'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% conversion from 16-QAM to bits stream
+% Correct frequency
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[X_phase_corrected,first_pilot] = CorrectPhase(X_hat, pilot_freq, points(1));
+%derp = EstimateFrequencyOffset(X_hat);
+CorrectFrequency(X_hat);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Correct phase
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[X_phase_corrected,first_pilot,freqOff] = CorrectPhase(X_hat, pilot_freq, points(1));
 %X_phase_corrected = X_hat;
 %first_pilot = 1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% conversion from 8-PSK to bits stream
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reposition the constellation points and demodulation
 [X2,X_tilde] = PSK_DemodEuc(X_phase_corrected,Nbits);
 %X2 = pskdemod(X_phase_corrected, 2^Nbits, 0);

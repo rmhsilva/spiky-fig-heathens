@@ -1,9 +1,10 @@
 %EstimateFrequencyOffset
 
-function [stream_out, freqOff] = CorrectFrequency(stream_in)
+function [stream_out, freqOff] = CorrectFrequency(stream_in_full)
     %Look at angle of each symbol compared to the nearest ideal constellation point
     
-    stream_out = zeros(1,length(stream_in));
+    stream_in = stream_in_full(1,1:1000);
+    stream_out = zeros(1,length(stream_in_full));
     
 %V1 code: looks at the whole thing    
     %Ideal constellation points
@@ -37,7 +38,7 @@ function [stream_out, freqOff] = CorrectFrequency(stream_in)
     for n = 2:length(stream_in)
         offsetdiff(1,n) = offsets(1,n) - offsets(1,n-1);
     end
-    plot(offsetdiff,'*');
+    %plot(offsetdiff,'*');
     
     
     %Calculate mean rate of change, ignoring the huge random spikes
@@ -50,7 +51,10 @@ function [stream_out, freqOff] = CorrectFrequency(stream_in)
             count = count + 1;
         end
     end
-    freqOff = freqOff / count
+    freqOff = freqOff / count;
+    
+    %Correct the offset
+    stream_out = CarrierOffset(stream_in_full, freqOff/(2*pi));
 
 % %V2 code: windows through the stream_in; UNFINISHED
 %     %Window through the symbols and estimate the rate of change of phase

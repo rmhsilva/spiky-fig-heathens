@@ -16,7 +16,7 @@
 
 %NOTE: matrix notation is rows x columns
 
-function [stream_out,first_pilot,freqOff] = CorrectPhase(stream_in_full, factor, pilotSymbol)
+function [stream_out,first_pilot] = CorrectPhase(stream_in_full, factor, pilotSymbol)
     
     % stream_in = zeros(1,factor*5);
     % stream_in = stream_in_full(1,1:factor*5);

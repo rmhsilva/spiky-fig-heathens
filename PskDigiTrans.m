@@ -19,7 +19,7 @@ points = exp(sqrt(-1)*(2*pi*rts + phase_offset));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % bit stream generation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LB = 1000;               % number of bits
+LB = 10000;               % number of bits
 LB = LB - mod(LB,Nbits);  % Make number of bits aligned with symbol size
 B = BitStream(LB);
 
@@ -49,7 +49,7 @@ s = filter(h,1,Xup);
 %Symbol freq = 6666 symbols/sec
 
 offset = (1/N) * (100/6666);  % of the symbol frequency (N)
-s = CarrierOffset(s, offset);
+%s = CarrierOffset(s, offset);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % filtering with channel impulse response
@@ -61,7 +61,7 @@ s_hat = filter(c,1,s);
 % additive white Gaussian noise (AWGN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist('SNR_set', 'var') % Means we can set SNR from another script
-    SNR = 20;
+    SNR = 13;
 end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
@@ -113,12 +113,14 @@ X_hat = Downsample(s2, N, start_point+Ninit);
 % Correct frequency
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %derp = EstimateFrequencyOffset(X_hat);
-CorrectFrequency(X_hat);
+X_freq_corrected = CorrectFrequency(X_hat);
+%X_freq_corrected = X_hat;
+%CorrectFrequency(X_freq_corrected);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Correct phase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[X_phase_corrected,first_pilot,freqOff] = CorrectPhase(X_hat, pilot_freq, points(1));
+[X_phase_corrected,first_pilot] = CorrectPhase(X_freq_corrected, pilot_freq, points(1));
 %X_phase_corrected = X_hat;
 %first_pilot = 1;
 

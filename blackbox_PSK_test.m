@@ -1,7 +1,7 @@
 %clear all;
 
 %Generate random symbol stream
-Len = 1000000;
+Len = 1000;
 input_syms = zeros(1,Len);
 for n = 1:length(input_syms)
     input_syms(1,n) = randi([0,7]);
@@ -64,8 +64,8 @@ end
 
 theoretical = zeros(1,snrmax);
 for n = 1:snrmax
-    stuff = sin(3.14159/8)*sqrt(2*3*linearSNRs(1,n));
-    theoretical(1,n) = ((2/3)*qfunc(stuff));
+    stuff = sin(pi/8)*sqrt(2*3*linearSNRs(1,n));
+    theoretical(1,n) = (2/3)*qfunc(stuff);
 end
 %semilogy(theoretical); grid on;
 figure(1);

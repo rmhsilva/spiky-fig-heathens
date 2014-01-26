@@ -69,8 +69,8 @@ s_hat = filter(c,1,s);
 %end
 sigma_x = std(s_hat);
 Ls = length(s_hat);
-%noise = (randn(1,Ls) + sqrt(-1)*randn(1,Ls))*sqrt(N)/sqrt(2);
-%s_hat = s_hat + sigma_x*(10^-(SNR + (10*log10(3))/20))*noise;
+% noise = (randn(1,Ls) + sqrt(-1)*randn(1,Ls))*sqrt(N)/sqrt(2);
+% s_hat = s_hat + sigma_x*(10^(-SNR/20))*noise;
 s_hat = awgn(s_hat,SNR + (10*log10(3)));
 % line above WAS: (incorrectly) s_hat = s_hat + sigma_x*10^(-SNR/20)*sqrt(N)*noise;
 

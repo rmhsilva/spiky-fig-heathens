@@ -1,0 +1,42 @@
+%\begin{sidewaystable} % Add the following just after the closing bracket on this line to specify a position for the table on the page: [h], [t], [b] or [p] - these mean: here, top, bottom and on a separate page, respectively
+\begin{table}
+
+
+\centering % Centers the table on the page, comment out to left-justify
+\begin{tabular}{|l|c|c|c|c|} % The final bracket specifies the number of columns in the table along with left and right borders which are specified using vertical bars (|); each column can be left, right or center-justified using l, r or c. To specify a precise width, use p{width}, e.g. p{5cm}
+\toprule % Top horizontal line
+%& \multicolumn{5}{c}{Compliance} \\ % Amalgamating several columns into one cell is done using the \multicolumn command as seen on this line
+\cmidrule(){1-5} % Horizontal line spanning less than the full width of the table - you can add (r) or (l) just before the opening curly bracket to shorten the rule on the left or right side
+\textbf{Spec. Para.} & \parbox[t]{2cm}{Exceeds\par/Fully\par/Partial\par/ Not done} & \textbf{Requirement Value} & \textbf{Achieved Value} & \textbf{See Report section} \\ % Column names row
+\midrule % In-table horizontal line
+2.1 & Fully &  &  &  \\ % Content row 1
+\midrule % In-table horizontal line
+2.2 & Exceeds & 10dBm & 15.5dBm &   \\ % Content row 2
+\midrule % In-table horizontal line
+2.3 & Exceeds & \textless-50dBc & -70/-60dBc &  \\ % Content row 3
+\midrule % In-table horizontal line
+3.1 &  & \textless.001BER &  &  \\ % Content row 4
+\midrule % In-table horizontal line
+3.2 & Fully & -50dBm &-50dBm  & \\ % Content row 5\midrule % In-table horizontal line
+\midrule
+3.3 & Fully &  &  &\\
+\midrule % In-table horizontal line
+3.4.1 & Exceeds & 30dB min & 35dB & \\ % Content row 6
+\midrule % In-table horizontal line
+3.4.2 & Exceeds & 50dB min & 52dB &  \\ % Content row 7
+\midrule % In-table horizontal line
+3.5 & Exceeds & 50dB min & 60dB &  \\ % Content row 8
+\midrule % In-table horizontal line
+3.6 & &100Hz max& &  \\%Content 9
+\midrule % In-table horizontal line
+3.7&Fully & 25.6M MACs & &\\ %table horizontal line
+3.8 &Exceeds&1000 symbols& \\%Content 11
+\midrule % In-table horizontal line
+3.9 & & & &  \\%Content 9
+
+\bottomrule % Bottom horizontal line
+\end{tabular}
+\caption{Compliance Table} % Table caption, can be commented out if no caption is required
+\label{tab:compliance} % A label for referencing this table elsewhere, references are used in text as \ref{label}
+%\end{sidewaystable}
+\end{table}

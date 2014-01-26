@@ -1,0 +1,64 @@
+%% ----------------------------------------------------------------
+%% Summary.tex
+%% ---------------------------------------------------------------- 
+
+\section{Noise Figure Calculation}
+
+The noise figure of the selected ADC (AD7665) was calculated using its full scale power and SNR using the equation:
+	\[	NF_{ADC} = P_{FS}(dBm) + 174dBm - SNR - 10 \log \left( \frac{\frac{f_{s}}{2}}{B} \right) - 10 \log B  \]
+	where \(P_{FS}\) is the full scale power of the ADC, \(f_{s}\) is the signal sampling frequency and B is the noise bandwidth (which is equal to the signal bandwidth).
+
+Given the bit rate, R of 20kbps, and with 8PSK employing 3 bits, the symbol rate, \(sr\) is calculated to be:
+	\[ sr = \frac{R}{no. of bits} = \frac{20 \times 10^{3}}{ 3 } = 6.7 ksps  \]
+To meet transmission requirements, the Nyquist sampling frequency, \(f_{n}\) is used and found to be:
+	\[ f_{n} = 2 \times sr = 2 \times 6.7 = 13.34 KHz\]
+However, for improved modulation and demodulation, the signal is oversampled by a factor of 8 to give a new sampling rate, \(f_{s}\) of:
+	\[ f_{s} = 8 \times f_{n} = 8 \times 13.34KHz = 106.72KSPS\]
+
+The ADC bandwidth, B is equal to the Nyquist frequency, \(f_{n}\) while the a full scale peak-to-peak voltage, \(V{p-p}\) of 2.5V is chosen based on the selected ADC.  The full power, \(P_{FS}\) is calculated from the full scale voltage thus:
+	\[ P_{FS} = \frac{V^{2}_{o}}{2R} = \frac{1.25^2}{100} = 1.562 \times 10^{-2} W \]
+and in dBm:
+	\[ P_{FS}(dBm) = 10 \log \left( 1000 \times 1.562 \times 10^{-4} \right) \]
+	\[ 			   = -11.94dBm	\]
+where \(V_{o} = \frac{V_{p-p}}{2}\) and R is the input impedance of the ADC taken to be \(50\Omega\).
+Taking the SNR value of 90dB given in the ADC datasheet and the other calculated values above, the ADC noise figure is found to be:
+	\[ NF_{ADC} = -11.94 + 174 - 90 - 10 \log \left( \frac{\frac{106.72 \times 10^{3}}{2}}{13.34 \times 10^{3}} \right) - 10 \log (13.34 \times 10^{3}) \]
+	\[ 		    = -11.94 + 174 - 90 - 6 - 41.25\]
+	\[  		= 48.69dB \]
+	
+Having realised the noise figure of all individual blocks, the overall cascaded Noise figure was calculated using the formula:
+	\[ NF_{total} = F_{1} + \frac{F_{2} - 1}{G_{1}} + \frac{F_{3} - 1}{G_{1}G_{2}} + ... +\frac{F_{n} - 1}{G_{1}G_{2}...G_{n-1}} \]
+An overall noise figure of  6.61dB and gain of 71.10dB.  The result was verified using a MATLAB script and the AppCAD tool.  The NF safety margin, \(N_{SF}\) based on the maximum allowable NF, \(N_{max}\) earlier calculated is found to be:  
+	\[ NF_{SF} = N_{max} - N_{actual} = 11.3 - 6.61 = 4.69dB	\]
+
+\section{Compliance Matrix point 3.2: Demodulation with maximum input power}
+This specification requests a demonstration of successful demodulation for the condition when receiver power is at a maximum of -50dBm.  High power in the received signal has the effect of increased amplitude which could result in signal clipping if the allowable amplitude range is exceeded.  However, the 8PSK modulation scheme encodes information using the phase of the signal, and hence is less prone to signal distortion caused by clipping as the phase remains unaffected in such cases.
+
+While this is a receiver hardware requirement (receiver linearity), the best means of demonstrating compliance is by the use of simulation.  The chosen approach is to simulate a clipped signal which is then modulated and demodulated in turn.  It is shown that for a clipped signal of an equivalent power to the maximum received signal of -50dBm, the original signal is successfully demodulated as shown in the respective figures.
+
+Further more, given the receiver total gain of 71.10dB, the maximum received signal of -50dBm on passing through the receiver has a signal power of:
+	\[  received signal power = -50dBm + 71.10dB = 21.10dBm = 0.128825 W 		\]
+As the ADC receives an analogue signal, the power of the received signal can be used to calculate its peak-to-peak voltage thus:
+	\[  P = \frac{V_{rms}^2}{R} \]
+	\[	V_{rms} = \sqrt{P R} = \sqrt{0.128825 \times 50\Omega} \]
+	\[			= 2.54V  \]
+and converting to peak-to-peak gives:
+	\[	V_{p-p}	= \frac{2.54}{0.7071}   \]
+	\[			= 3.59V \]
+The ADC operates with input signal voltages at \(2.5V_{p-p}\), hence the maximum power signal is greater by a magnitude of \( \frac{3.59}{2.5} = 1.45 \).  
+
+
+\section{Compliance Matrix point 3.7: DSP power justification}
+The calculated (over) sampling rate for the transceiver is 107KSPS. The most tasking computational task in the DSP is the root raised cosine filtering (smoothing) operation performed either during transmit or receive operations.  The filter has 160 taps and thus runs 160 multiply accumulate calculations (MACs) per symbol.  However, the signal is oversampled by a factor of 16 as earlier shown which implies each symbol has 16 samples (sampling points).
+
+The phase correction and bit synchronisation operations are estimated to require approximately 60 MACs while frequency correction is estimated to require not more than 20 MACs.  However the filtering operation occurs 16 times faster than these other operations, hence, both would require less than their total 80 MACs per second.  Summing up the required MAC for all operations for one sample gives:
+	\[ Total MAC per sample = Filter MAC + Bit synchronisation MAC + Frequency correction MAC	\]
+	\[			  = 160 + 60 + 20	\]
+	\[			  = 240 MAC per sample		\]
+and using this to calculate the total MAC per second gives:
+	\[ Total MACs per second = 106,667 \times 240		\]
+	\[ 						 = 25,600,000 MAC per second \]
+A low cost DSP chip (ADSP-BF592) capable of running at a maximum frequency of 400MHz and having two 16 bit MACs was selected for the design.  The chip can run \(400M \times 2 = 800 MACs per second \).  Hence, based on the above estimate for the required MAC, the computational model only utilises \( \frac{25,.6M}{800M} \times 100\% = 2.75\% \) of the DSP chip capacity.  This shows the DSP chip is more than enough to implement the model design and leaves a lot of room for future expansion of the model implementation.  For example, down conversion could be implemented in software.
+
+
+

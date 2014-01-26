@@ -87,18 +87,19 @@ This specification requests a demonstration of successful demodulation for the c
 
 While this is a receiver hardware requirement (receiver linearity), the best means of demonstrating compliance is by the use of simulation.  The chosen approach is to simulate a clipped signal which is then modulated and demodulated in turn.  It is shown that for a clipped signal of an equivalent power to the maximum received signal of -50dBm, the original signal is successfully demodulated as shown in the respective figures.
 
-Further more, given the receiver total gain of 71.10dB, the maximum received signal of -50dBm on passing through the receiver has a signal power of:
-	\[  received signal power = -50dBm + 71.10dB = 21.10dBm = 0.128825 W 		\]
-As the ADC receives an analogue signal, the power of the received signal can be used to calculate its peak-to-peak voltage thus:
-	\[  P = \frac{V_{rms}^2}{R} \]
-	\[	V_{rms} = \sqrt{P R} = \sqrt{0.128825 \times 50\Omega} \]
+Further more, given the receiver total gain of 71.10dB, the maximum received signal of -50dBm on passing through the receiver has a signal power, \(P_{R}\) of:
+	\[ P_{R}  = -50dBm + 71.10dB = 21.10dBm = 0.128825 W 		\]
+As the ADC receives an analogue signal, the power of the received signal can be used to calculate its peak voltage thus:
+	\[  P_{R} = \frac{V_{rms}^2}{R} \]
+	\[	V_{rms} = \sqrt{P_{R} R} = \sqrt{0.128825 \times 50\Omega} \]
 	\[			= 2.54V  \]
-and converting to peak-to-peak gives:
-	\[	V_{p-p}	= \frac{2.54}{0.7071}   \]
+and converting to the peak voltage gives:
+	\[	V_{p}	= \frac{2.54}{0.7071}   \]
 	\[			= 3.59V \]
-The ADC operates with input signal voltages at \(2.5V_{p-p}\), hence the maximum power signal is greater by a magnitude of \( \frac{3.59}{2.5} = 1.45 \).  
+	
+The downconverter (AD8333) has a maximum power rating for the RF input pin to be 6V and so would be capable of operating with the signal voltage of 3.59V without any adverse effect. The ADC operates with input signal voltages at \(2.5V_{p}\), hence the maximum power signal is greater by a magnitude of \( \frac{3.59}{2.5} = 1.45 \) 
 
-***Figures to be supplied by Henry
+***Figures to be supplied by Henry (see the clipping simulation figures in the Diagrams folder; there are five of these named: "ClippingSim...")
 
 
 \section{Compliance Matrix point 3.7: DSP power justification}

@@ -2,6 +2,57 @@
 %% Summary.tex
 %% ---------------------------------------------------------------- 
 
+\section{Maximum Allowable Noise Figure Calculation}
+Given: bit rate, R = 20kbps,
+transmit power, W = 10dBm,
+receive power, P = -110dBm,
+maximum BER = \(10^{-3}\), and the 
+minimum energy per bit/noise density (\(\frac{E_{b}}{N_{0}}\)) = 10dB (value derived from the BER vs \(\frac{E_{b}}{N_{0}}\) graph shown in Figure \ref{fig:PSK_BER})
+
+%		\begin{figure}[!htb]
+%  			\centering
+%    		\includegraphics[width=0.8\textwidth]{Figures/PSK_BER_curves}
+%				\caption[8PSK BER vs \(\frac{E_{b}}{N_{0}}\)]{Graph showing 8PSK BER vs \(\frac{E_{b}}{N_{0}}\) relationship}
+%				    		\label{fig:PSK_BER}
+%		\end{figure}
+
+The energy per bit of the received signal \(E_{b}\) can be calculated using P and R thus:
+		\[ E_{b} = \frac{P}{R} = P(dB) - R(dB) \]
+		\[       = -110 - 10 \log \left( 20 \times 10^{3} \right) \]
+		\[       = -110 - 43.01 \]
+		\[       = -153.01dBm/Hz\]
+		
+The maximum noise, \(N_{omax}\) is given by:
+		\[ N_{omax} = \frac{E_{b}}{N_{0}}^{-1} E_{b}  \]
+		\[			= E_{b}(dB) - \frac{E_{b}}{N_{0}} (dB) \]
+		\[			= 153.01dBm/Hz - 10dB \]
+		\[			= -163.01dBm/Hz \]
+		\[			= -163.01dBm/Hz -30dB \]
+		\[			= -193.01dBW/Hz\]
+
+The effective temperature \(T_{e}\) of the receiver can be calculated using the equation:
+		\[
+			N_{e} = kT_{e}B
+		\]
+where \(N_{e}\) is the effective noise, k is the boltzman constant and B is the noise bandwidth.
+However, t is known that:
+		\[ N_{omax} = kT_{emax}\]
+which is solved for \(T_{emax}\) to give:
+		\[
+			T_{emax} = \frac{N_{omax}}{k} \]
+		\[			 = N_{omax}(dB) - k (dB) \]
+		\[			 = -193.01 - 10 \log \left( 1.38 \times 10^{-23} \right) \]
+		\[			 = -193.01 + 228.6 \]
+		\[			 = 35.59dBK \]
+		\[			 = 3622.43K \]
+		
+Therefore, the maximum allowable noise figure \(NF_{max}\) for the receiver is calculated thus:
+		
+		\[	NF_{max} = 10 \log \left(1 + \frac{T_{emax}}{290} \right) \]
+		\[			 = 10 \log \left(1 + \frac{3622.43}{290} \right) \]
+		\[			 = 11.3dB	\]
+
+
 \section{Noise Figure Calculation}
 
 The noise figure of the selected ADC (AD7665) was calculated using its full scale power and SNR using the equation:
@@ -47,6 +98,8 @@ and converting to peak-to-peak gives:
 	\[			= 3.59V \]
 The ADC operates with input signal voltages at \(2.5V_{p-p}\), hence the maximum power signal is greater by a magnitude of \( \frac{3.59}{2.5} = 1.45 \).  
 
+***Figures to be supplied by Henry
+
 
 \section{Compliance Matrix point 3.7: DSP power justification}
 The calculated (over) sampling rate for the transceiver is 107KSPS. The most tasking computational task in the DSP is the root raised cosine filtering (smoothing) operation performed either during transmit or receive operations.  The filter has 160 taps and thus runs 160 multiply accumulate calculations (MACs) per symbol.  However, the signal is oversampled by a factor of 16 as earlier shown which implies each symbol has 16 samples (sampling points).
@@ -58,7 +111,7 @@ The phase correction and bit synchronisation operations are estimated to require
 and using this to calculate the total MAC per second gives:
 	\[ Total MACs per second = 106,667 \times 240		\]
 	\[ 						 = 25,600,000 MAC per second \]
-A low cost DSP chip (ADSP-BF592) capable of running at a maximum frequency of 400MHz and having two 16 bit MACs was selected for the design.  The chip can run \(400M \times 2 = 800 MACs per second \).  Hence, based on the above estimate for the required MAC, the computational model only utilises \( \frac{25,.6M}{800M} \times 100\% = 2.75\% \) of the DSP chip capacity.  This shows the DSP chip is more than enough to implement the model design and leaves a lot of room for future expansion of the model implementation.  For example, down conversion could be implemented in software.
+A low cost DSP chip (ADSP-BF592) capable of running at a maximum frequency of 400MHz and having two 16 bit MACs was selected for the design.  The chip can run \(400M \times 2 = 800 MACs per second \).  Hence, based on the above estimate for the required MAC, the computational model only utilises \( \frac{25,.6M}{800M} \times 100\% = 3.2\% \) of the DSP chip capacity.  This shows the DSP chip is more than enough to implement the model design and leaves a lot of room for future expansion of the model implementation.  For example, down conversion could be implemented in software.
 
 
 

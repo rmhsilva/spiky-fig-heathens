@@ -37,6 +37,9 @@ for n = 1:length(angles)
         end           
     end
     y(n) = closest-1;
+    if(closest == 0) %Catch if something breaks
+        derp = 1;
+    end
     sliced(n) = points(closest);
 end
 

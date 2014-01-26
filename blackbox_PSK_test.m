@@ -2,10 +2,10 @@
 
 
 
-% %Data from our own system
+%Data from our own system
+snrmax = 18;
 results_no_corr = zeros(1,snrmax+1);
 for n = 0:snrmax
-
     results_no_corr(n+1) = PskDigiTrans(n);
 end
 

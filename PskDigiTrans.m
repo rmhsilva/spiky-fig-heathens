@@ -52,8 +52,9 @@ s = filter(h,1,Xup);
 %100Hz worst case
 %Symbol freq = 6666 symbols/sec
 
-offset = (1/N) * (1/6666);  % of the symbol frequency (N)
+offset = (1/N) * (-100/6666);  % of the symbol frequency (N)
 %s = CarrierOffset(s, offset);
+%s = s .* exp(1i*pi); %Phase offset
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % filtering with channel impulse response
@@ -77,11 +78,11 @@ s_hat = awgn(s_hat,SNR + (10*log10(3)));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % receive filtering, gain and quantisation modelling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-s_hat = s_hat .* 0.00159;                    % Receiver gain for -110dBm (3.98mV pk-pk)
-s_real = quantise(real(s_hat), 16);     % 16 bit quantisation for real data
-s_imag = quantise(imag(s_hat), 16);     % 16 bit quantisation for imag data
-s_quantised = s_real + s_imag.*1i;  % Recombine the data
-%s_quantised = s_hat;
+s_hat = s_hat .* 1;                    % Receiver gain for -110dBm (3.98mV pk-pk)
+%s_real = quantise(real(s_hat), 16);     % 16 bit quantisation for real data
+%s_imag = quantise(imag(s_hat), 16);     % 16 bit quantisation for imag data
+%s_quantised = s_real + s_imag.*1i;  % Recombine the data
+s_quantised = s_hat;
 
 s2 = filter(h,1,s_quantised);
 %s2 = s_quantised;
@@ -125,15 +126,15 @@ X_freq_corrected = X_hat;
 
 % % plot received constellation
 % figure(3); clf;
-% plot(X_freq_corrected(500:1000),'.');
+% plot(X_freq_corrected(1:100),'.');
 % title('freq corrected'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Correct phase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%[X_phase_corrected,first_pilot] = CorrectPhase(X_freq_corrected, pilot_freq, points(1));
-X_phase_corrected = X_hat;
-first_pilot = 1;
+[X_phase_corrected,first_pilot] = CorrectPhase(X_freq_corrected, pilot_freq, points(1));
+%X_phase_corrected = X_hat;
+%first_pilot = 1;
 
 % plot received constellation
 % figure(4); clf;

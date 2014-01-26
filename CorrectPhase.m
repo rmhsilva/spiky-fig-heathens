@@ -46,6 +46,61 @@ function [stream_out,first_pilot] = CorrectPhase(stream_in_full, factor, pilotSy
     % %Calculate offset and reverse it
     % offset = meanPilot/pilotSymbol;
     % stream_out = stream_in_full/offset;
+    
+% %V1 code: does angle offset by complex division    
+%     stream_out = zeros(1,length(stream_in_full));
+% 
+%     blocksize = 5*factor;
+%     mycounter = 1;
+%     offset = 0;
+%     first_pilot = 0;
+%     numOfBlocks = floor(length(stream_in_full)/blocksize)-1;
+%     offsetList = zeros(1,numOfBlocks);
+% 
+%     for mycounter = 0:numOfBlocks
+%         % This will loop to cover *most* of the stream in
+% 
+%         mat = reshape(stream_in_full((mycounter*blocksize)+1:(mycounter+1)*blocksize), factor, blocksize/factor).';
+% 
+%         %For each column, calculate the average mag. change between rows
+%         [row,col] = size(mat);
+%         avgs = zeros(1,factor);
+%         tot = 0;
+%         for n = 1:col
+%             for m = 2:row
+%                 tot = tot + abs(mat(m,n)-mat(m-1,n));
+%             end
+%             avgs(1,n) = tot/row;
+%         end
+% 
+%         %Find column with min average, this should contain the pilots
+%         [temp,initial] = min(avgs);
+% 
+%         if (first_pilot == 0)
+%             first_pilot = initial;
+%         end
+% 
+%         %Find a mean average of the pilots
+%         tot = 0;
+%         for n = 1:row
+%             tot = tot + mat(n,initial);
+%         end
+%         meanPilot = tot / row;
+% 
+%         %Calculate offset and reverse it
+%         offset = meanPilot/pilotSymbol;
+%         stream_out((mycounter*blocksize)+1:(mycounter+1)*blocksize) = stream_in_full((mycounter*blocksize)+1:(mycounter+1)*blocksize)/offset;
+%         
+%         %Add the offset to the list
+%         offsetList(1,mycounter+1) = offset;
+%     end
+% 
+%     % Deal with leftover elements
+%     mycounter = mycounter+1;
+%     stream_out(mycounter*blocksize:end) = stream_in_full(mycounter*blocksize:end)/offset;
+
+    
+%V2 code:
     stream_out = zeros(1,length(stream_in_full));
 
     blocksize = 5*factor;
@@ -60,13 +115,13 @@ function [stream_out,first_pilot] = CorrectPhase(stream_in_full, factor, pilotSy
 
         mat = reshape(stream_in_full((mycounter*blocksize)+1:(mycounter+1)*blocksize), factor, blocksize/factor).';
 
-        %For each column, calculate the average mag. change between rows
+        %For each column, calculate the average angle change between rows
         [row,col] = size(mat);
         avgs = zeros(1,factor);
         tot = 0;
         for n = 1:col
             for m = 2:row
-                tot = tot + abs(mat(m,n)-mat(m-1,n));
+                tot = tot + abs(warg(mat(m,n))-warg(mat(m-1,n)));
             end
             avgs(1,n) = tot/row;
         end
@@ -86,8 +141,8 @@ function [stream_out,first_pilot] = CorrectPhase(stream_in_full, factor, pilotSy
         meanPilot = tot / row;
 
         %Calculate offset and reverse it
-        offset = meanPilot/pilotSymbol;
-        stream_out((mycounter*blocksize)+1:(mycounter+1)*blocksize) = stream_in_full((mycounter*blocksize)+1:(mycounter+1)*blocksize)/offset;
+        offset = warg(meanPilot) - warg(pilotSymbol);
+        stream_out((mycounter*blocksize)+1:(mycounter+1)*blocksize) = stream_in_full((mycounter*blocksize)+1:(mycounter+1)*blocksize)*exp(1i*-offset);
         
         %Add the offset to the list
         offsetList(1,mycounter+1) = offset;
@@ -95,17 +150,7 @@ function [stream_out,first_pilot] = CorrectPhase(stream_in_full, factor, pilotSy
 
     % Deal with leftover elements
     mycounter = mycounter+1;
-    stream_out(mycounter*blocksize:end) = stream_in_full(mycounter*blocksize:end)/offset;
-    
-%     freqOff = (angle(offsetList(1,1))-angle(offsetList(1,2)))/blocksize;
-%     freqOff = 0;
-%     for n = first_pilot:factor:length(stream_in_full)
-%         a = stream_in_full(1,n);
-%         b = stream_in_full(1,n+1);
-%         diff = angle(a) - angle(b);
-%         freqOff = freqOff + diff;
-%     end
-%     freqOff = (freqOff*factor) / length(stream_in_full);
-    
+    stream_out(mycounter*blocksize:end) = stream_in_full(mycounter*blocksize:end)*exp(1i*-offset);
+
     
 end

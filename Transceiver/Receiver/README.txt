@@ -1,0 +1,3 @@
+The clippingsim images are to demonstrate that the clipping of an upconverted signal does not significantly affect the phase information.
+The amount of clipping was set to the equivalent which would occur in our system if a -50dBm signal is injected, i.e. approximately 145% of full swing.
+The test baseband signal created is sin(1.2*pi*t) + j*cos(0.9*pi*t). This signal was generated to intentionally give the phase angle output observed to demonstrate how little the clipping affects the phase.

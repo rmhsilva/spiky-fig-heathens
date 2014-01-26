@@ -17,7 +17,7 @@ start_point = 160;
 
 % Sample the signal and calculate the average power for each Ninit:
 for Ninit = 1:factor
-    sdn = s(start_point+Ninit:factor:900);
+    sdn = s(start_point+Ninit:factor:10);
     avg_pwr(Ninit) = sum(norm(sdn).^2) / Ls;
 end
 

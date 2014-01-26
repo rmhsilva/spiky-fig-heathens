@@ -22,7 +22,7 @@ points = exp(sqrt(-1)*(2*pi*rts + phase_offset));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % bit stream generation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LB = 1000;               % number of bits
+LB = 1000000;               % number of bits
 LB = LB - mod(LB,Nbits);  % Make number of bits aligned with symbol size
 B = BitStream(LB);
 %B = ones(1,LB);
@@ -52,8 +52,8 @@ s = filter(h,1,Xup);
 %100Hz worst case
 %Symbol freq = 6666 symbols/sec
 
-offset = (1/N) * (100/6666);  % of the symbol frequency (N)
-s = CarrierOffset(s, offset);
+offset = (1/N) * (1/6666);  % of the symbol frequency (N)
+%s = CarrierOffset(s, offset);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % filtering with channel impulse response
@@ -77,10 +77,11 @@ s_hat = awgn(s_hat,SNR + (10*log10(3)));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % receive filtering, gain and quantisation modelling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-s_hat = s_hat .* 0.1;                    % Receiver gain for -110dBm (10% of full swing)
+s_hat = s_hat .* 0.00159;                    % Receiver gain for -110dBm (3.98mV pk-pk)
 s_real = quantise(real(s_hat), 16);     % 16 bit quantisation for real data
 s_imag = quantise(imag(s_hat), 16);     % 16 bit quantisation for imag data
 s_quantised = s_real + s_imag.*1i;  % Recombine the data
+%s_quantised = s_hat;
 
 s2 = filter(h,1,s_quantised);
 %s2 = s_quantised;
@@ -111,30 +112,63 @@ X_hat = Downsample(s2, N, start_point+Ninit);
 % plot received constellation
 % figure(2); clf;
 % plot(X_hat(20:100),'.');
-% title('constellation'); xlabel('I'); ylabel('Q');
+% title('8-PSK constellation'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Correct frequency
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %derp = EstimateFrequencyOffset(X_hat);
-X_freq_corrected = CorrectFrequency(X_hat, phase_offset);
+%X_freq_corrected = CorrectFrequency(X_hat, phase_offset);
 %X_hat = CorrectFrequency(X_hat);
-%X_freq_corrected = X_hat;
+X_freq_corrected = X_hat;
 %CorrectFrequency(X_freq_corrected);
+
+% % plot received constellation
+% figure(3); clf;
+% plot(X_freq_corrected(500:1000),'.');
+% title('freq corrected'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Correct phase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[X_phase_corrected,first_pilot] = CorrectPhase(X_freq_corrected, pilot_freq, points(1));
-%X_phase_corrected = X_hat;
+%[X_phase_corrected,first_pilot] = CorrectPhase(X_freq_corrected, pilot_freq, points(1));
+X_phase_corrected = X_hat;
 first_pilot = 1;
+
+% plot received constellation
+% figure(4); clf;
+% plot(X_phase_corrected(20:100),'.');
+% title('phase corrected'); xlabel('I'); ylabel('Q');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion from 8-PSK to bits stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reposition the constellation points and demodulation
 [X2,X_tilde] = PSK_Demod(X_phase_corrected, Nbits, phase_offset);
-%X2 = pskdemod(X_phase_corrected, 2^Nbits, 0);
+%X2 = pskdemod(X_phase_corrected, 2^Nbits, 0);%     points = warg(exp(sqrt(-1)*(2*pi*rts + phase_offset)));
+%     %points = (exp(sqrt(-1)*(2*pi*rts)));
+%     
+%     %Get angles of the incoming stream
+%     angles = warg(stream_in_full);
+%     
+%     %Calculate angle offsets
+%     offsets = zeros(1,length(angles));
+%     for n = 1:length(angles)
+%         %Find closest point
+%         closest = 0;
+%         angmin = 10;
+%         tempres = zeros(1,8);
+%         for m = 1:8
+%             %angtemp = abs(angle(points(1,m)) - angle(stream_in(1,n)));
+%             angtemp = abs(points(1,m) - angles(1,n));
+%             tempres(1,m) = angtemp;
+%             if(angtemp < angmin)
+%                 angmin = angtemp;
+%                 closest = m;
+%             end           
+%         end
+%         offsets(1,n) = points(1,closest) - angles(1,n);
+%     end
 
 
 % Remove pilots and convert to bits
@@ -148,5 +182,8 @@ delayB = 0;			% to compensate delays in channel & TX/RX
 diff = B(1:length(B2)) - B2(delayB+1:end);
 BER = sum(abs(diff))/(length(B)-delayB);
 disp(sprintf('bit error probability = %f',BER));
+
+% figure(5);
+% plot(B(1:length(B2))-B2);
 
 end

@@ -1,9 +1,9 @@
 %EstimateFrequencyOffset
 
-function [stream_out, freqOff] = CorrectFrequency(stream_in_full, phase_offset)
+function [stream_out, freqOff] = CorrectFrequency(stream_in_full, current_phase_offset)
     %Look at angle of each symbol compared to the nearest ideal constellation point
     
-     stream_in = stream_in_full(1,1:100);
+%      stream_in = stream_in_full(1,1:100);
      stream_out = zeros(1,length(stream_in_full));
      freqOff = 0;
     
@@ -116,51 +116,112 @@ function [stream_out, freqOff] = CorrectFrequency(stream_in_full, phase_offset)
 
     Nbits = 3;
     rts = (1:(2^Nbits)) / (2^Nbits);
-    point_angles = warg(exp(sqrt(-1)*(2*pi*rts + phase_offset)));
+    point_angles = warg(exp(sqrt(-1)*(2*pi*rts + current_phase_offset)));
 
-    winsize = 10;
-    e = 0;
-    errors = zeros(1,length(stream_in_full)-winsize);
-    prev_offset = 0;
-    freq_diff = zeros(1,winsize);
-    thresh = pi/8;
-    Kp = 0.1;
-    Ki = 0.3;
-    Kd = 0.1;
-    blash = zeros(1,length(errors));
+%     winsize = 10;
+%     e = 0;
+%     fdiff = 0;
+%     offset = 0;
+%     freq_offset = 0;
+%     errors = zeros(1,length(stream_in_full));
+%     prev_offset = 0;
+%     freq_diff = zeros(1,winsize);
+%     thresh = pi/8;
+%      Kp = 0.1;
+%      Ki = 0.2;
+%      Kd = 0.0001;
+%     blash = zeros(1,length(errors));
+%     
+%     for n=1:length(stream_in_full)
+%         stream_out(1,n) = stream_in_full(1,n) * exp(sqrt(-1)*e*n);
+%         
+%         % Get phase offset in radians
+%         offset = calc_offset(stream_out(1,n));
+%         
+%         % Differentiate to get freq offset
+%         freq_offset = offset - prev_offset;
+%         
+%         % Clamp large changes in freq offset
+%         if (abs(freq_offset) > thresh)
+%             freq_offset = freq_diff(mod(n-1,winsize)+1);
+%         end
+% 
+%         freq_diff(mod(n,winsize)+1) = freq_offset;
+% 
+%         % Save previous offset for next loop
+%         prev_offset = offset;
+%         
+%         % Derivative
+%         fdiff = freq_diff(mod(n,winsize)+1) - freq_diff(mod(n-1,winsize)+1);
+%         
+%         % error
+%         e = Kp*freq_offset + Ki*sum(freq_diff) + Kd*fdiff;
+%         errors(n) = e;
+%         blash(n) = freq_offset;
+%     end
     
-    for n=1:length(stream_in_full)-winsize
-        stream_out(1,n) = stream_in_full(1,n) * exp(-sqrt(-1)*e);
+    
+    %%%%% NEW SHIT
+    
+    ref = 0;
+    new_fo = 0;
+    current_phase_offset = 0;
+    prev_phase_offset = 0;
+    freq_offset = 0;
+    prev_freq_offset = 0;
+    winsize = 1000;
+    thresh = pi/8;
+    prev_e = zeros(1,winsize);
+    ediff = 0;
+    e = 0;
+    Kp = 0;
+    Ki = 1/winsize;
+    Kd = 0.0;
+    
+    errors = zeros(1,length(stream_in_full));
+    blash = zeros(1,length(stream_in_full));
+    hoooga = zeros(1,length(blash));
+    
+    for n=1:length(stream_in_full)
+        stream_out(1,n) = stream_in_full(1,n) * exp(sqrt(-1)*new_fo*n);
         
         % Get phase offset in radians
-        offset = calc_offset(stream_out(1,n));
+        current_phase_offset = calc_offset(stream_in_full(1,n));
+        hoooga(n) = current_phase_offset;
         
         % Differentiate to get freq offset
-        freq_offset = offset - prev_offset;
+        freq_offset = current_phase_offset - prev_phase_offset;
         
         % Clamp large changes in freq offset
         if (abs(freq_offset) > thresh)
-            freq_offset = freq_diff(mod(n-1,winsize)+1);
+            freq_offset = prev_freq_offset;
         end
-
-        freq_diff(mod(n,winsize)+1) = freq_offset;
-
+        
         % Save previous offset for next loop
-        prev_offset = offset;
+        prev_phase_offset = current_phase_offset;
+        prev_freq_offset = freq_offset;
         
-        % Derivative
-        diff = freq_diff(mod(n,winsize)+1) - freq_diff(mod(n-1,winsize)+1);
         
-        % error
-        e = Kp*freq_offset + Ki*sum(freq_diff) + Kd*diff;
+        % Calculate error
+        e = freq_offset;
+        new_fo = Kp*e + Ki*sum(prev_e) + Kd*ediff;
         errors(n) = e;
-        blash(n) = freq_offset;
+        blash(n) = new_fo;
+        
+        % For integral
+        prev_e(mod(n,winsize)+1) = e;
+        
+        % For derivative
+        ediff = e - prev_e(mod(n-1,winsize)+1);
     end
-    figure(1); plot(1:length(errors),errors,1:length(blash),blash);
-    legend('Error (Rad)','Frequency Offset (Rad/Sym)');
-    title('Tan locked loop');
-    xlabel('Symbols');
-    mean(blash)
+    
+    %%%%
+    
+%     figure(1); plot(1:length(errors),hoooga,1:length(blash),blash);
+%     legend('Error (Rad)','Frequency Offset (Rad/Sym)');
+%     title('Tan locked loop');
+%     xlabel('Symbols');
+    freqOff = mean(blash);
     
     function error = calc_offset(point)
         angle = warg(point);

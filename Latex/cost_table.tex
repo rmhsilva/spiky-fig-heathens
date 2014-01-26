@@ -1,0 +1,71 @@
+%% Add to before begin document :
+
+%\usepackage{booktabs}
+%\usepackage{rotating}
+%\usepackage{multirow}
+%\usepackage{hhline}
+
+%%%%%
+
+\begin{sidewaystable} % Add the following just after the closing bracket on this line to specify a position for the table on the page: [h], [t], [b] or [p] - these mean: here, top, bottom and on a separate page, respectively
+\centering % Centers the table on the page, comment out to left-justify
+\begin{tabular}{l c c c c c c c} % The final bracket specifies the number of columns in the table along with left and right borders which are specified using vertical bars (|); each column can be left, right or center-justified using l, r or c. To specify a precise width, use p{width}, e.g. p{5cm}
+
+Part Receiver & Part Number & Maker & Price & supplier & Bulk for & Bulk price & Bulk Order for 100k\\ % Column names row
+\midrule % In-table horizontal line
+
+RF BPF& LFB322G45SN1A504& Murata& \pounds0.56 &Mouser &50k& \pounds0.19 &\pounds19,400.00\\
+RF AMP & AVT-53663-TR1G &Avago &\pounds0.40 &Farnell &100 & \pounds 0.32& \pounds32,000.00\\
+RF BPF& LFB322G45SN1A504& Murata& \pounds0.56 &Mouser &50k& \pounds0.19 &\pounds19,400.00\\
+MIXER 1 & LT5560 &Linear 
+&\pounds2.51 &Farnell &500 &\pounds1.47 &\pounds147,000.00\\
+BPF1 IF1&  LFB32315MSC1-619& Murata& \pounds1.18& Octopart.com &10k& \pounds0.30& \pounds30,353.60\\
+AMP 1 & AVT-53663-TR1G& Avago &\pounds0.43 &Farnell &100 &\pounds0.32 &\pounds32,000.00\\
+BPF1 IF1& LFB32315MSC1-619& Murata& \pounds1.18 & Octopart.com &10k& \pounds0.30& \pounds30,353.60\\
+MIXER 2& LT5526& Linear &\pounds2.51 &Farnell& 1 &\pounds2.51 &\pounds251,000.00\\
+BPF IF2& CFWLA455KEFA-B0 &Murata &\pounds2.15 &Mouser &10k& \pounds0.86 &\pounds86,300.00\\
+AMP 2& AVT-53663-TR1G &Avago& \pounds0.43& Farnell& 100 &\pounds0.32 &\pounds32,000.00\\
+
+AMP 2& AVT-53663-TR1G& Avago &\pounds0.43& Farnell &100 &\pounds0.32 &\pounds32,000.00\\
+
+Downconverter& AD8333& Analog Devices& \pounds14.09& Farnell& 100& \pounds10.00& \pounds1,000,000.00\\
+
+ADC (I)& AD7665 &Analog Devices& \pounds25.12 &Farnell& 500 &\pounds18.06 &\pounds1,806,000.00\\
+ADC (Q)& AD7665 &Analog Devices& \pounds25.12 &Farnell& 500 &\pounds18.06 &\pounds1,806,000.00\\
+\midrule % In-table horizontal line
+&&&\pounds76.67 &TOTALS&& 100k Units: &\pounds5,323,807.20\\
+
+&&&&&&Receiver cost:&\pounds53.23\\
+
+
+
+Transmitter\\
+\midrule
+DAC (I)& AD5310 & Analog Devices &\pounds4.03 &Farnell& 100& \pounds 2.16 &\pounds216,000.00\\
+DAC (Q)& AD5310 & Analog Devices &\pounds4.03 &Farnell& 100& \pounds 2.16 &\pounds216,000.00\\
+Up Converter& ad8346& Analog Devices& \pounds6.01& Farnell& 500& \pounds3.84& \pounds384,000.00\\
+
+Amplifier& ADL5562ACPZ-R7& Analog Devices& \pounds7.91& Farnell& 250& \pounds5.38& \pounds538,000.00\\
+
+Amplifier& ADL5562ACPZ-R7& Analog Devices& \pounds7.91& Farnell& 250& \pounds5.38& \pounds538,000.00\\
+
+LPF& 2450LP14B100T& johanson Technology& \pounds0.40& mouser& 4000& \pounds0.12& \pounds12,400.00\\
+\midrule
+RF switch& LMSW43CA-209& Murata& \pounds0.01 &alibaba.com &1 &\pounds0.01 &\pounds610.00\\
+DSP&ADSP-BF592	&Analog Devices&	\pounds5.96&	Mouser&	2500&	\pounds3.18&	\pounds318000\\
+\midrule
+
+&&&\pounds36.26 & TOTALS && 100k Units:&\pounds2,223,010.00\\
+
+
+&&&&&&Transmitter cost:&\pounds22.23\\
+
+%Transceiver unit price &\pounds86.68 &&Transceiver unit price&\pounds59.89 \\
+
+&&Transceiver unit cost	&\pounds112.93 &&&Transceiver unit cost: & \textbf{\pounds 75.46}\\
+&&&&&&(100k production)&(\textbf{\$ 104.06)}\\
+
+\end{tabular}
+\caption{Costing for 100k production} % Table caption, can be commented out if no caption is required
+\label{tab:cost} % A label for referencing this table elsewhere, references are used in text as \ref{label}
+\end{sidewaystable}
